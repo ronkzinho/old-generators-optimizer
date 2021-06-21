@@ -17,9 +17,8 @@ def run_seed():
 def start_run():
     with open('settings.json') as filter_json:
         read_json = json.load(filter_json)
-        if not read_json["generator"]:
-            return print("Invalid generator.")
         if not os.path.exists("seed"):
+            if not read_json["generator"]: return print("Invalid generator.")
             if not get_gen(): return print("Invalid generator or something went wrong.")
         num_processes = read_json["thread_count"]
     processes = []
