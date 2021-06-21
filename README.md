@@ -8,7 +8,7 @@ Change the settings.json file with the generator you want(from the supported gen
 
 And also don't forget to change the minecraft folder(on the hotkey script) with where your minrcraft saves are.
 
-# Supported generators #:
+# Supported generators:
 
 ```
 fsg-power-village-plusplus
