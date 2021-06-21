@@ -10,6 +10,8 @@ And also don't forget to change the minecraft folder(on the hotkey script) with 
 
 # Supported generators #:
 
+```
 fsg-power-village-plusplus
 filteredseed
 fsg-power-village-minus-minus
+```
