@@ -34,12 +34,21 @@ RunHide(Command) {
 }
 
 GenerateSeed() {
-    fsg_seed_token := RunHide("wsl.exe python3 ./findSeed.py")
-    timestamp := A_NowUTC
-    fsg_seed_token_array := StrSplit(fsg_seed_token, ["Seed", "Verification Token:"]) 
-    fsg_seed_array := StrSplit(fsg_seed_token_array[3], A_Space)
-    fsg_seed := Trim(fsg_seed_array[2])
-    return {seed: fsg_seed, token: fsg_seed_token}
+    Try {
+        fsg_seed_token := RunHide("wsl.exe python3 ./findSeed.py")
+        timestamp := A_NowUTC
+        fsg_seed_token_array := StrSplit(fsg_seed_token, ["Seed:", "Verification Token:"]) 
+        fsg_seed_array := StrSplit(fsg_seed_token_array[2], A_Space)
+        fsg_seed := Trim(fsg_seed_array[2])
+        return {seed: fsg_seed, token: fsg_seed_token}
+    } Catch e {
+        return { error: "You didn't install everything it was supposed to" }
+    }
+}
+
+showError(e){
+    ComObjCreate("SAPI.SpVoice").Speak("Error")
+    MsgBox % e
 }
 
 FindSeed(resetFromWorld){
@@ -47,9 +56,12 @@ FindSeed(resetFromWorld){
         if (next_seed = "" || (A_NowUTC - timestamp > 30 && !resetFromWorld)) {
             ComObjCreate("SAPI.SpVoice").Speak("Searching")
             output := GenerateSeed()
+            if (output["error"]){
+                showError(output["error"])
+                return
+            }
             if (output["seed"] = ""){
-                ComObjCreate("SAPI.SpVoice").Speak("Error")
-                MsgBox % output["token"]
+                showError(output["token"])
                 return
             }
             next_seed := output["seed"]
