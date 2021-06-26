@@ -3,6 +3,7 @@ SetWorkingDir, %A_ScriptDir%
 SetKeyDelay, 50
 
 global next_seed = ""
+global next_seed_type = ""
 global token = ""
 global timestamp = 0
 
@@ -37,10 +38,12 @@ GenerateSeed() {
     Try {
         fsg_seed_token := RunHide("wsl.exe python3 ./findSeed.py")
         timestamp := A_NowUTC
-        fsg_seed_token_array := StrSplit(fsg_seed_token, ["Seed:", "Verification Token:"]) 
+        fsg_seed_token_array := StrSplit(fsg_seed_token, ["Seed:", "Verification Token:", "Type:"]) 
         fsg_seed_array := StrSplit(fsg_seed_token_array[2], A_Space)
+        fsg_type_array := StrSplit(fsg_seed_token_array[4], A_Space)
         fsg_seed := Trim(fsg_seed_array[2])
-        return {seed: fsg_seed, token: fsg_seed_token}
+        fsg_type := Trim(fsg_type_array[2])
+        return {seed: fsg_seed, token: fsg_seed_token, seed_type: fsg_type}
     } Catch e {
         return { error: "You didn't install everything it was supposed to" }
     }
@@ -67,11 +70,19 @@ FindSeed(resetFromWorld){
             next_seed := output["seed"]
             token := output["token"]
             ComObjCreate("SAPI.SpVoice").Speak("Seed Found")
+            if (output["seed_type"]){
+                next_seed_type := output["seed_type"]
+            }
+            else {
+                next_seed_type := ""
+            }
         }
         if FileExist("fsg_seed_token.txt"){
             FileMoveDir, fsg_seed_token.txt, fsg_tokens\fsg_seed_token_%A_NowUTC%.txt, R
         }
         clipboard = %next_seed%
+
+        if (next_seed_type) ComObjCreate("SAPI.SpVoice").Speak(next_seed_type)
 
         WinActivate, Minecraft
         Sleep, 100
@@ -80,6 +91,12 @@ FindSeed(resetFromWorld){
         output := GenerateSeed()
         next_seed := output["seed"]
         token := output["token"]
+        if (output["seed_type"]){
+            next_seed_type := output["seed_type"]
+        }
+        else {
+            next_seed_type := ""
+        }
     } else {
         MsgBox % "Minecraft is not open, open Minecraft and run agian."
     }

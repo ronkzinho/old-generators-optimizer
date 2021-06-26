@@ -13,17 +13,22 @@ import re
 def run_seed(generator: str):
     seed = ""
     token = ""
+    seed_type = ""
     while seed == "":
         cmd = os.popen("cd generator && ./seed").read().strip()
         cmd = re.sub("[.|,|@|\\n]", " ", cmd)
         listedCmd = cmd.split(" ")
         if "Seed:" in listedCmd:
+            if not "Only)" in listedCmd:
+                seed_type = listedCmd[listedCmd.index("Seed") - 1]
             seed = listedCmd[listedCmd.index("Seed:") + 1]
             token = listedCmd[listedCmd.index("Token:") + 1]
     if(seed is not "" and token is not ""):
         print(f"Generator: {generator}")
         print(f"Seed: {seed} ")
         print(f"Verification Token: {token} \n")
+        if seed_type is not "":
+            print(f"Type: {seed_type}")
 
 
 def start_run():
