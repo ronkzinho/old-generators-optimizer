@@ -6,20 +6,30 @@ from downloadGen import get_gen
 import subprocess
 import signal
 import shutil
+import re
 
 
 
-def run_seed():
+def run_seed(generator: str):
     seed = ""
+    token = ""
     while seed == "":
-        cmd = f'cd ./generator && ./seed'
-        seed = os.popen(cmd).read().strip()
-    print(seed)
+        cmd = os.popen("cd generator && ./seed").read().strip()
+        cmd = re.sub("[.|,|@|\\n]", " ", cmd)
+        listedCmd = cmd.split(" ")
+        if "Seed:" in listedCmd:
+            seed = listedCmd[listedCmd.index("Seed:") + 1]
+            token = listedCmd[listedCmd.index("Token:") + 1]
+    if(seed is not "" and token is not ""):
+        print(f"Generator: {generator}")
+        print(f"Seed: {seed} ")
+        print(f"Verification Token: {token} \n")
 
 
 def start_run():
     with open('settings.json') as filter_json:
         read_json = json.load(filter_json)
+        generator = read_json["generator"]
         if not os.path.exists("./generator/seed"):
             if not read_json["generator"]: return print("Invalid generator.")
             if not get_gen(): return print("Invalid generator or something went wrong.")
@@ -32,7 +42,7 @@ def start_run():
         num_processes = read_json["thread_count"]
     processes = []
     for i in range(num_processes):
-        processes.append(Process(target=run_seed))
+        processes.append(Process(target=run_seed, args=(generator,)))
         processes[-1].start()
     i = 0
     while True:
