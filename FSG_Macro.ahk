@@ -47,7 +47,7 @@ FindSeed(){
             ComObjCreate("SAPI.SpVoice").Speak(fsg_type)
         } else ComObjCreate("SAPI.SpVoice").Speak("Seed Found")
         
-        FSGFastCreateWorld() ;Change to FSGFastCreateWorld() if you want an optimized macro
+        FSGCreateWorld() ;Change to FSGFastCreateWorld() if you want an optimized macro
     } else {
         MsgBox % "Minecraft is not open, open Minecraft and run again."
     }
