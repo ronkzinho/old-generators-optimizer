@@ -5,14 +5,10 @@ from zipfile import ZipFile
 
 
 def get_gen():
-    generators = {
-        "fsg-power-village-plusplus": "https://drive.google.com/uc?export=download&id=1vcJPJhuT11jfJreKElmQL7PdfJIZ3Lv2",
-        "filteredseed": "https://drive.google.com/uc?export=download&id=1mpWw28TCCJixqdnx_iFcPq0G5qxuttnj",
-        "fsg-power-village-minus-minus": "https://drive.google.com/uc?export=download&id=1hzBE_BkU_3vnAYUW7XniM-NP2DwUu3G4"
-    }
     with open('settings.json') as filter_json:
         try:
             read_json = json.load(filter_json)
+            generators = requests.get("https://oldgenoptimizer.tk/api/generators").json()
             if not read_json["generator"] in generators:
                 return False
             url = generators[read_json["generator"]]

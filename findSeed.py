@@ -26,9 +26,9 @@ def run_seed(generator: str):
     if(seed is not "" and token is not ""):
         print(f"Generator: {generator}")
         print(f"Seed: {seed} ")
-        print(f"Verification Token: {token} \n")
+        print(f"Verification Token: {token}")
         if seed_type is not "":
-            print(f"Type: {seed_type}")
+            print(f"Type: {seed_type}\n")
 
 
 def start_run():
