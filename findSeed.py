@@ -14,20 +14,24 @@ def run_seed(generator: str):
     seed = ""
     token = ""
     seed_type = ""
+    seedCount = ""
     while seed == "":
         cmd = os.popen("cd generator && ./seed").read().strip()
-        cmd = re.sub("[.|,|@|\\n]", " ", cmd)
-        listedCmd = cmd.split(" ")
+        listedCmd = re.sub("[.|,|@|\\n]", " ", cmd).split(" ")
+        print(listedCmd)
         if "Seed:" in listedCmd:
             if not "Only)" in listedCmd:
                 seed_type = listedCmd[listedCmd.index("Seed") - 1]
             seed = listedCmd[listedCmd.index("Seed:") + 1]
             token = listedCmd[listedCmd.index("Token:") + 1]
-    if(seed is not "" and token is not ""):
+            seedCount = listedCmd[listedCmd.index("Seed:") + 3]
+    if(seed != "" and token != ""):
         print(f"Generator: {generator}")
         print(f"Seed: {seed} ")
         print(f"Verification Token: {token}")
-        if seed_type is not "":
+        if seedCount != "":
+            print(f"Filtered: {seedCount}")
+        if seed_type != "":
             print(f"Type: {seed_type}\n")
 
 
