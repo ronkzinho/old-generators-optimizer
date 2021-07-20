@@ -18,7 +18,6 @@ def run_seed(generator: str):
     while seed == "":
         cmd = os.popen("cd generator && ./seed").read().strip()
         listedCmd = re.sub("[.|,|@|\\n]", " ", cmd).split(" ")
-        print(listedCmd)
         if "Seed:" in listedCmd:
             if not "Only)" in listedCmd:
                 seed_type = listedCmd[listedCmd.index("Seed") - 1]
