@@ -4,7 +4,7 @@ So, I did this based on [FSGOptimizerSeedBank](https://github.com/Specnr/FSGOpti
 
 It is required to have python3 and wsl, here's how to install: [FSGOptimizerSeedBank](https://github.com/Specnr/FSGOptimizedSeedBank/blob/main/README.md)
 
-Change the settings.json file with the generator you want(from the supported generators) to use and then just open the hotkey file, and with minecraft open, press Y to test it.
+Change the settings.json file with the generator you want(from the supported generators) to use and then just open the hotkey file, and with minecraft open, press Y to use it.
 
 And also don't forget to change the minecraft folder(on the hotkey script) with where your minecraft saves are.
 
