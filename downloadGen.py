@@ -18,7 +18,6 @@ def get_gen():
                 unzip()
             return True
         except Exception as e:
-            print(e)
             return False
 
 

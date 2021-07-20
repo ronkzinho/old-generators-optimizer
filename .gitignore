@@ -1,2 +1,7 @@
 /__pycache__
 /generator
+fsg_seed_token.txt
+/fsg_tokens
+
+
+*.json

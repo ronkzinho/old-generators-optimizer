@@ -7,7 +7,7 @@ import subprocess
 import signal
 import shutil
 import re
-
+import time
 
 
 def run_seed(generator: str):
@@ -15,12 +15,14 @@ def run_seed(generator: str):
     token = ""
     seed_type = ""
     seedCount = ""
+    start = time.time()
     while seed == "":
         cmd = os.popen("cd generator && ./seed").read().strip()
         listedCmd = re.sub("[.|,|@|\\n]", " ", cmd).split(" ")
         if "Seed:" in listedCmd:
-            if not "Only)" in listedCmd:
+            if not "Only)" in listedCmd and not "Worst Seed Glitchless" in " ".join(listedCmd):
                 seed_type = listedCmd[listedCmd.index("Seed") - 1]
+
             seed = listedCmd[listedCmd.index("Seed:") + 1]
             token = listedCmd[listedCmd.index("Token:") + 1]
             seedCount = listedCmd[listedCmd.index("Seed:") + 3]
@@ -31,7 +33,8 @@ def run_seed(generator: str):
         if seedCount != "":
             print(f"Filtered: {seedCount}")
         if seed_type != "":
-            print(f"Type: {seed_type}\n")
+            print(f"Type: {seed_type}")
+        print(f"Duration: {time.strftime('%H:%M:%S', time.gmtime(time.time() - start))}")
 
 
 def start_run():
