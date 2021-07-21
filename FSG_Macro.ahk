@@ -6,6 +6,7 @@ global next_seed = ""
 global next_seed_type = ""
 global token = ""
 global timestamp = 0
+global autoUpdate = True
 
 IfNotExist, fsg_tokens
     FileCreateDir, fsg_tokens
@@ -204,15 +205,33 @@ ExitWorld()
     SetKeyDelay, 50
 }
 
-#IfWinActive, Minecraft
+if (!FileExist(SavesDirectory)){
+    MsgBox, "Your saves folder is invalid!"
+    ExitApp
+}
+
+if (autoUpdate == True){
+    update := RunHide("wsl.exe python3 ./updater.py check")
+    
+    IfInString, update, True
     {
-
-        Y::
-            GetSeed()
-        return
-
-        U::
-            ExitWorld()
-        return
-
+        MsgBox, 4, Old Gen Optimizer, There is a new version of the optimizer, do you want to download it?(you will lose all essentials files)
+        IfMsgBox, Yes
+        {
+            RunHide("wsl.exe python3 ./updater.py")
+            MsgBox, Old Gen Optimizer, Done.
+        }
     }
+}
+
+#IfWinActive, Minecraft
+{
+    Y::
+        GetSeed()
+    return
+
+    U::
+        ExitWorld()
+    return
+
+}

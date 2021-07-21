@@ -127,6 +127,32 @@ ExitWorld()
     }
 }
 
+ExitWorld()
+{
+    SetKeyDelay, 0
+    send {Esc}{Shift}+{Tab}{Enter}
+    SetKeyDelay, 50
+}
+
+if (!FileExist(SavesDirectory)){
+    MsgBox, "Your saves folder is invalid!"
+    ExitApp
+}
+
+if (autoUpdate == True){
+    update := RunHide("wsl.exe python3 ./updater.py check")
+    
+    IfInString, update, True
+    {
+        MsgBox, 4, Old Gen Optimizer, There is a new version of the optimizer, do you want to download it?(you will lose all essentials files)
+        IfMsgBox, Yes
+        {
+            RunHide("wsl.exe python3 ./updater.py")
+            MsgBox, Old Gen Optimizer, Done.
+        }
+    }
+}
+
 #IfWinActive, Minecraft
 {
     Y::
