@@ -3,9 +3,10 @@ import os
 from zipfile import ZipFile
 import requests
 import sys
+from packaging import version
 
 
-currentVersion = 1.9
+currentVersion = "v1.0"
 
 def update(check: bool):
     try:
@@ -16,7 +17,7 @@ def update(check: bool):
                 missingFiles = True
         req = requests.get("https://api.github.com/repos/ronkzinho/oldgenoptimizer/releases")
         newestVersion = req.json()
-        if float(newestVersion[0]["tag_name"]) > currentVersion or missingFiles == True:
+        if version.parse(newestVersion[0]["tag_name"]) > version.parse(currentVersion) or missingFiles == True:
             if check: return print("True")
             r = requests.get("https://github.com/ronkzinho/oldgenoptimizer/releases/latest/download/optimizer.zip")
             with open("optimizer.zip", "wb") as code:
