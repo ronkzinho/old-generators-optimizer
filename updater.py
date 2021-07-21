@@ -5,26 +5,31 @@ import requests
 import sys
 
 
-currentVersion = 1.8
+currentVersion = 1.9
 
 def update(check: bool):
     try:
+        essentialsFiles = ["downloadGen.py", "findSeed.py", "FSG_Macro_slow.ahk", "FSG_Macro.ahk", "updater.py"]
+        missingFiles = False
+        for essentialFile in essentialsFiles:
+            if not os.path.isfile(essentialFile):
+                missingFiles = True
         req = requests.get("https://api.github.com/repos/ronkzinho/oldgenoptimizer/releases")
         newestVersion = req.json()
-        if float(newestVersion[0]["tag_name"]) > currentVersion:
+        if float(newestVersion[0]["tag_name"]) > currentVersion or missingFiles == True:
             if check: return print("True")
             r = requests.get("https://github.com/ronkzinho/oldgenoptimizer/releases/latest/download/optimizer.zip")
             with open("optimizer.zip", "wb") as code:
                 code.write(r.content)
-                unzip("optimizer.zip")
+                unzip("optimizer.zip", essentialsFiles)
         if check:
             return print("False")
     except Exception:
         return print("False")
 
-def unzip(fileName: str):
+def unzip(fileName: str, essentialFiles: list):
     with ZipFile(fileName, 'r') as zip_ref:
-        zip_ref.extractall(members=["downloadGen.py", "findSeed.py", "FSG_Macro_slow.ahk", "FSG_Macro.ahk", "updater.py"])
+        zip_ref.extractall(members=essentialFiles)
     
     os.remove(fileName)
 
