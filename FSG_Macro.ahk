@@ -215,11 +215,11 @@ if (autoUpdate == True){
     
     IfInString, update, True
     {
-        MsgBox, 4, Old Gen Optimizer, There is a new version of the optimizer, do you want to download it?(you will lose all essentials files)
+        MsgBox, 4, Old Gen Optimizer, There is a new version of the optimizer, do you want to download it? (you will lose all essential files)
         IfMsgBox, Yes
         {
             RunHide("wsl.exe python3 ./updater.py")
-            MsgBox, Old Gen Optimizer, Done.
+            MsgBox, Done.
         }
     }
 }
