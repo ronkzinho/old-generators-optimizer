@@ -205,6 +205,15 @@ ExitWorld()
     SetKeyDelay, 50
 }
 
+if (FileExist("requirements.txt")){
+    result := RunHide("wsl.exe pip install -r requirements.txt")
+    if (result == ""){
+        MsgBox, You have to install pip using: "sudo apt-get install python3-pip"
+        ExitApp
+    }
+    FileDelete % "./requirements.txt"
+}
+
 if (!FileExist(SavesDirectory)){
     MsgBox, "Your saves folder is invalid!"
     ExitApp

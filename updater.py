@@ -30,7 +30,7 @@ def update(check: bool):
 
 def unzip(fileName: str, essentialFiles: list):
     with ZipFile(fileName, 'r') as zip_ref:
-        zip_ref.extractall(members=essentialFiles)
+        zip_ref.extractall(members=essentialFiles + ["requirements.txt"])
     
     os.remove(fileName)
 
