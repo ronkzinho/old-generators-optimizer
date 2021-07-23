@@ -6,7 +6,7 @@ import sys
 from packaging import version
 
 
-currentVersion = "v1.3"
+currentVersion = "v1.3.1.dev"
 
 def update(check: bool, force: bool):
     try:
@@ -19,7 +19,7 @@ def update(check: bool, force: bool):
                     missingFiles = True
             req = requests.get("https://api.github.com/repos/ronkzinho/oldgenoptimizer/releases")
             newestVersion = req.json()
-            if (version.parse(newestVersion[0]["tag_name"]) > version.parse(currentVersion) and not newestVersion[0]["prerelease"] and not settings_json["tests"] == True) or missingFiles == True or force == True:
+            if (version.parse(newestVersion[0]["tag_name"]) > version.parse(currentVersion) and not newestVersion[0]["prerelease"]) or (version.parse(newestVersion[0]["tag_name"]) > version.parse(currentVersion) and newestVersion[0]["prerelease"] and settings_json["tests"] == True) or missingFiles == True or force == True:
                 if check: return print("True")
                 r = requests.get("https://github.com/ronkzinho/oldgenoptimizer/releases/latest/download/optimizer.zip")
                 with open("optimizer.zip", "wb") as code:

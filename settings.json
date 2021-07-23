@@ -1,7 +1,7 @@
 {
     "generator": "",
     "thread_count": 4,
-    "autoUpdate": true,
+    "autoUpdate": false,
     "worldListWait": 3000,
     "savesFolder": "%appdata%/.minecraft/saves"
 }

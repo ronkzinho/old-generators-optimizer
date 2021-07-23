@@ -12,8 +12,8 @@ global next_seed = ""
 global next_seed_type = ""
 global token = ""
 global timestamp = 0
-global autoUpdate = settings["autoUpdate"] || true
-global worldListWait = settings["worldListWait"] || 3000
+global autoUpdate := settings["autoUpdate"]
+global worldListWait := settings["worldListWait"]
 
 IfNotExist, fsg_tokens
     FileCreateDir, fsg_tokens
@@ -202,7 +202,17 @@ ExitWorld()
 }
 
 if (!FileExist(SavesDirectory)){
-    MsgBox, "Your saves folder is invalid!"
+    MsgBox % "Your saves folder is invalid!"
+    ExitApp
+}
+
+if (autoUpdate != true and autoUpdate != false){
+    MsgBox % "The configuration autoUpdate must be either true or false."
+    ExitApp
+}
+
+if (!(worldListWait > 0)){
+    MsgBox % "The configuration worldListWait must be a postive number."
     ExitApp
 }
 
