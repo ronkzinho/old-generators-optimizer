@@ -21,7 +21,7 @@ IfNotExist, fsg_tokens
 
 #NoEnv
 EnvGet, appdata, appdata 
-global SavesDirectory = StrReplace(settings["savesFolder"], "%appdata%", appdata) || appdata "\.minecraft\saves\"
+global SavesDirectory := StrReplace(settings["savesFolder"], "%appdata%", appdata)
 IfNotExist, %SavesDirectory%_oldWorlds
     FileCreateDir, %SavesDirectory%_oldWorlds
 
