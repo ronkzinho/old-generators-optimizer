@@ -11,6 +11,14 @@ global SavesDirectory = appdata "\.minecraft\saves\" ; Replace this with your mi
 IfNotExist, %SavesDirectory%_oldWorlds
     FileCreateDir, %SavesDirectory%_oldWorlds
 
+FileRead jsonString, settings.json
+
+settings := JSON.Load(jsonString)
+
+global autoUpdate = settings["autoUpdate"] || true
+global worldListWait = settings["worldListWait"] || 3000
+
+
 FindSeed(){
     if WinExist("Minecraft"){
         if FileExist("fsg_seed_token.txt"){
@@ -23,7 +31,7 @@ FindSeed(){
             RunWait, wsl.exe python3 ./findSeed.py > fsg_seed_token.txt,, hide
         } Catch e {
             MsgBox % "You did something wrong."
-            return
+            ExitApp
         }
         FileRead, fsg_seed_token, fsg_seed_token.txt
 
@@ -134,21 +142,30 @@ ExitWorld()
     SetKeyDelay, 50
 }
 
+if (FileExist("requirements.txt")){
+    result := RunHide("wsl.exe pip install -r requirements.txt")
+    if (result == ""){
+        MsgBox, You have to install pip using: "sudo apt-get install python3-pip"
+        ExitApp
+    }
+    FileDelete % "./requirements.txt"
+}
+
 if (!FileExist(SavesDirectory)){
     MsgBox, "Your saves folder is invalid!"
     ExitApp
 }
 
-if (autoUpdate == True){
+if (autoUpdate == true){
     update := RunHide("wsl.exe python3 ./updater.py check")
     
     IfInString, update, True
     {
-        MsgBox, 4, Old Gen Optimizer, There is a new version of the optimizer, do you want to download it?(you will lose all essentials files)
+        MsgBox, 4, Old Gen Optimizer, There is a new version of the optimizer, do you want to download it? (you will lose all essential files)
         IfMsgBox, Yes
         {
             RunHide("wsl.exe python3 ./updater.py")
-            MsgBox, Old Gen Optimizer, Done.
+            MsgBox, Done.
         }
     }
 }

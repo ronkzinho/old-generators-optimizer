@@ -1,12 +1,19 @@
+#Include JSON.ahk
+
 #SingleInstance, Force
 SetWorkingDir, %A_ScriptDir%
 SetKeyDelay, 50
+
+FileRead jsonString, settings.json
+
+settings := JSON.Load(jsonString)
 
 global next_seed = ""
 global next_seed_type = ""
 global token = ""
 global timestamp = 0
-global autoUpdate = True
+global autoUpdate = settings["autoUpdate"] || true
+global worldListWait = settings["worldListWait"] || 3000
 
 IfNotExist, fsg_tokens
     FileCreateDir, fsg_tokens
@@ -17,13 +24,6 @@ EnvGet, appdata, appdata
 global SavesDirectory = appdata "\.minecraft\saves\" ; Replace this with your minecraft saves
 IfNotExist, %SavesDirectory%_oldWorlds
     FileCreateDir, %SavesDirectory%_oldWorlds
-
-;https://seedbankcustom.andynovo.repl.co/ to adjust your filter update inside filters.json
-;TO EDIT YOUR FILTER
-;GOTO https://seedbankcustom.andynovo.repl.co/
-;SELECT YOUR FILTER AND GET A FILTER CODE e.g. 000A000A00000000000A000A00000000000A000A00000000000A000A000000000
-;OPEN settings.json and update your filter and desired number of threads
-;
 
 ;HOW TO GET YOUR TOKEN
 ;When you press your macro to GetSeed it will create a file called fsg_seed_token.txt
@@ -50,17 +50,13 @@ RunHide(Command) {
 }
 
 GenerateSeed() {
-    try{
-        fsg_seed_token := RunHide("wsl.exe python3 ./findSeed.py")
-        timestamp := A_NowUTC
-        fsg_seed_token_array := StrSplit(fsg_seed_token, ["Seed:", "Verification Token:", "Type:"]) 
-        fsg_seed_array := StrSplit(fsg_seed_token_array[2], A_Space)
-        fsg_type_array := StrSplit(fsg_seed_token_array[4], A_Space)
-        fsg_seed := Trim(fsg_seed_array[2])
-        fsg_type := Trim(fsg_type_array[2])
-    } Catch e {
-        return { error: "You didn't install everything it was supposed to" }
-    }
+    fsg_seed_token := RunHide("wsl.exe python3 ./findSeed.py")
+    timestamp := A_NowUTC
+    fsg_seed_token_array := StrSplit(fsg_seed_token, ["Seed:", "Verification Token:", "Type:"]) 
+    fsg_seed_array := StrSplit(fsg_seed_token_array[2], A_Space)
+    fsg_type_array := StrSplit(fsg_seed_token_array[4], A_Space)
+    fsg_seed := Trim(fsg_seed_array[2])
+    fsg_type := Trim(fsg_type_array[2])
 
     return {seed: fsg_seed, token: fsg_seed_token, seed_type: fsg_type}
 }
@@ -116,7 +112,7 @@ GetSeed(){
             {
                 PixelSearch, Px, Py, 0, 0, W, H, 0x00FCFC, 1, Fast
                 if (!ErrorLevel) {
-                    Sleep, 5000
+                    Sleep, %worldListWait%
                     IfWinActive, Minecraft 
                     {
                         FindSeed(True)()
@@ -219,7 +215,7 @@ if (!FileExist(SavesDirectory)){
     ExitApp
 }
 
-if (autoUpdate == True){
+if (autoUpdate == true){
     update := RunHide("wsl.exe python3 ./updater.py check")
     
     IfInString, update, True
