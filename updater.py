@@ -6,35 +6,60 @@ import sys
 from packaging import version
 
 
-currentVersion = "v1.21"
+currentVersion = "v1.3"
 
-def update(check: bool):
+def update(check: bool, force: bool):
     try:
-        essentialsFiles = ["downloadGen.py", "findSeed.py", "FSG_Macro_slow.ahk", "FSG_Macro.ahk", "updater.py", "JSON.ahk"]
-        missingFiles = False
-        for essentialFile in essentialsFiles:
-            if not os.path.isfile(essentialFile):
-                missingFiles = True
-        req = requests.get("https://api.github.com/repos/ronkzinho/oldgenoptimizer/releases")
-        newestVersion = req.json()
-        if (version.parse(newestVersion[0]["tag_name"]) > version.parse(currentVersion) and not newestVersion[0]["prerelease"]) or missingFiles == True:
-            if check: return print("True")
-            r = requests.get("https://github.com/ronkzinho/oldgenoptimizer/releases/latest/download/optimizer.zip")
-            with open("optimizer.zip", "wb") as code:
-                code.write(r.content)
-                unzip("optimizer.zip", essentialsFiles)
-        if check:
-            return print("False")
+        with open("settings.json", "r+") as settings_raw:
+            settings_json = json.load(settings_raw)
+            essentialsFiles = ["downloadGen.py", "findSeed.py", "FSG_Macro_slow.ahk", "FSG_Macro.ahk", "updater.py", "JSON.ahk"]
+            missingFiles = False
+            for essentialFile in essentialsFiles:
+                if not os.path.isfile(essentialFile):
+                    missingFiles = True
+            req = requests.get("https://api.github.com/repos/ronkzinho/oldgenoptimizer/releases")
+            newestVersion = req.json()
+            if (version.parse(newestVersion[0]["tag_name"]) > version.parse(currentVersion) and not newestVersion[0]["prerelease"] and not settings_json["tests"] == True) or missingFiles == True or force == True:
+                if check: return print("True")
+                r = requests.get("https://github.com/ronkzinho/oldgenoptimizer/releases/latest/download/optimizer.zip")
+                with open("optimizer.zip", "wb") as code:
+                    code.write(r.content)
+                    newProperties = unzip("optimizer.zip", settings_json)
+                    settings_raw.seek(0)
+                    settings_raw.write(json.dumps(newProperties, indent=4))
+            if check:
+                return print("False")
     except Exception:
         return print("False")
 
-def unzip(fileName: str, essentialFiles: list):
+def unzip(fileName: str, settings_json: dict):
+    newProperties = settings_json.copy()
     with ZipFile(fileName, 'r') as zip_ref:
-        zip_ref.extractall(members=essentialFiles + ["requirements.txt"])
+        for member in zip_ref.namelist():
+            if member == "settings.json":
+                content = zip_ref.open(member)
+                newsettings_json = json.loads(content.read())
+                for property in newsettings_json:
+                    if not property in settings_json:
+                        newProperties.update({ f"{property}": newsettings_json[property] })
+
+                for oldProperty in settings_json:
+                    if not oldProperty in newsettings_json:
+                        del newProperties[oldProperty]
+            break
+
+        zip_ref.extractall()
     
     os.remove(fileName)
+    return newProperties
 
 if __name__ == "__main__":
     if(len(sys.argv) > 1):
-        update(sys.argv[1] == "check")
-    else: update(False)
+        if "force" in sys.argv:
+            if "check" in sys.argv:
+                update(True, True)
+            else:
+                update(False, True)
+        else:
+            update(sys.argv[1] == "check", False)
+    else: update(False, False)

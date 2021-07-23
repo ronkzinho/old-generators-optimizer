@@ -18,10 +18,10 @@ global worldListWait = settings["worldListWait"] || 3000
 IfNotExist, fsg_tokens
     FileCreateDir, fsg_tokens
 
-;UPDATE THIS TO YOUR MINECRAFT SAVES FOLDER
+
 #NoEnv
 EnvGet, appdata, appdata 
-global SavesDirectory = appdata "\.minecraft\saves\" ; Replace this with your minecraft saves
+global SavesDirectory = StrReplace(settings["savesFolder"], "%appdata%", appdata) || appdata "\.minecraft\saves\"
 IfNotExist, %SavesDirectory%_oldWorlds
     FileCreateDir, %SavesDirectory%_oldWorlds
 
@@ -201,15 +201,6 @@ ExitWorld()
     SetKeyDelay, 50
 }
 
-if (FileExist("requirements.txt")){
-    result := RunHide("wsl.exe pip install -r requirements.txt")
-    if (result == ""){
-        MsgBox, You have to install pip using: "sudo apt-get install python3-pip"
-        ExitApp
-    }
-    FileDelete % "./requirements.txt"
-}
-
 if (!FileExist(SavesDirectory)){
     MsgBox, "Your saves folder is invalid!"
     ExitApp
@@ -225,8 +216,21 @@ if (autoUpdate == true){
         {
             RunHide("wsl.exe python3 ./updater.py")
             MsgBox, Done.
+            Reload
         }
     }
+}
+
+if (FileExist("requirements.txt")){
+    if (autoUpdate == true){
+        RunHide("wsl.exe python3 ./updater.py force")
+    }
+    result := RunHide("wsl.exe pip install -r requirements.txt")
+    if (result == ""){
+        MsgBox, You have to install pip using: "sudo apt-get install python3-pip"
+        ExitApp
+    }
+    FileDelete % "./requirements.txt"
 }
 
 #IfWinActive, Minecraft
