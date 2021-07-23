@@ -6,11 +6,11 @@ import sys
 from packaging import version
 
 
-currentVersion = "v1.2"
+currentVersion = "v1.21"
 
 def update(check: bool):
     try:
-        essentialsFiles = ["downloadGen.py", "findSeed.py", "FSG_Macro_slow.ahk", "FSG_Macro.ahk", "updater.py"]
+        essentialsFiles = ["downloadGen.py", "findSeed.py", "FSG_Macro_slow.ahk", "FSG_Macro.ahk", "updater.py", "JSON.ahk"]
         missingFiles = False
         for essentialFile in essentialsFiles:
             if not os.path.isfile(essentialFile):
