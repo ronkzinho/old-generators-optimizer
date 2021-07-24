@@ -42,11 +42,10 @@ FindSeed(){
         fsg_seed := Trim(fsg_seed_array[2])
         fsg_type := Trim(fsg_type_array[2])
 
-        if (fsg_seed = ""){
+        if (!fsg_seed){
             MsgBox % fsg_seed_token
             return
         }
-
 
         clipboard = %fsg_seed%
 
@@ -56,7 +55,7 @@ FindSeed(){
             ComObjCreate("SAPI.SpVoice").Speak(fsg_type)
         } else ComObjCreate("SAPI.SpVoice").Speak("Seed Found")
         
-        FSGCreateWorld() ;Change to FSGFastCreateWorld() if you want an optimized macro
+        settings["fastWorldCreation"] == true ? FSGFastCreateWorld() : FSGCreateWorld()
     } else {
         MsgBox % "Minecraft is not open, open Minecraft and run again."
     }

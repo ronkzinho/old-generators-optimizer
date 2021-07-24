@@ -18,7 +18,6 @@ global worldListWait := settings["worldListWait"]
 IfNotExist, fsg_tokens
     FileCreateDir, fsg_tokens
 
-
 #NoEnv
 EnvGet, appdata, appdata 
 global SavesDirectory := StrReplace(settings["savesFolder"], "%appdata%", appdata)
@@ -63,19 +62,19 @@ GenerateSeed() {
 
 FindSeed(resetFromWorld){
     if WinExist("Minecraft"){
-        if (next_seed = "" || (A_NowUTC - timestamp > 30 && !resetFromWorld)) {
+        if (next_seed == "" || (A_NowUTC - timestamp > 30 && !resetFromWorld)) {
             ComObjCreate("SAPI.SpVoice").Speak("Searching")
             output := GenerateSeed()
             next_seed := output["seed"]
             token := output["token"]
 
-            if (next_seed = ""){
-                MsgBox % fsg_seed_token
+            if (next_seed == ""){
+                MsgBox % token
                 return
             }
             ComObjCreate("SAPI.SpVoice").Speak("Seed Found")
         
-            next_seed_type := output["seed_type"] || ""
+            next_seed_type := output["seed_type"]
         }
         if FileExist("fsg_seed_token.txt"){
             FileMoveDir, fsg_seed_token.txt, fsg_tokens\fsg_seed_token_%A_NowUTC%.txt, R
@@ -84,16 +83,17 @@ FindSeed(resetFromWorld){
 
         WinActivate, Minecraft
         Sleep, 100
-        FSGCreateWorld() ;Change to FSGFastCreateWorld() if you want an optimized macro
+        settings["fastWorldCreation"] == true ? FSGFastCreateWorld() : FSGCreateWorld()
         
-        if (seed_type != ""){
+        if (seed_type){
             ComObjCreate("SAPI.SpVoice").Speak(seed_type)
         }
+        
         FileAppend, %token%, fsg_seed_token.txt
         output := GenerateSeed()
         next_seed := output["seed"]
         token := output["token"]
-        next_seed_type = output["seed_type"] || ""
+        next_seed_type = output["seed_type"]
     } else {
         MsgBox % "Minecraft is not open, open Minecraft and run agian."
     }
@@ -204,6 +204,10 @@ ExitWorld()
 if (!FileExist(SavesDirectory)){
     MsgBox % "Your saves folder is invalid!"
     ExitApp
+}
+
+if (!settings["generator"]){
+    MsgBox % "Invalid generator."
 }
 
 if (autoUpdate != true and autoUpdate != false){
