@@ -31,6 +31,10 @@ IfNotExist, %SavesDirectory%_oldWorlds
 ;All past seeds and verification data will be stored into the folder fsg_tokens with the name 
 ;fsg_seed_token followed by a date and time e.g. 123456789_2021261233.txt
 
+Speak(txt){
+     ComObjCreate("SAPI.SpVoice").Speak(txt)
+}
+
 RunHide(Command) {
     dhw := A_DetectHiddenWindows
     DetectHiddenWindows, On
@@ -63,7 +67,8 @@ GenerateSeed() {
 FindSeed(resetFromWorld){
     if WinExist("Minecraft"){
         if (next_seed == "" || (A_NowUTC - timestamp > 30 && !resetFromWorld)) {
-            ComObjCreate("SAPI.SpVoice").Speak("Searching")
+            Speak("Searching")
+
             output := GenerateSeed()
             next_seed := output["seed"]
             token := output["token"]
@@ -72,7 +77,8 @@ FindSeed(resetFromWorld){
                 MsgBox % token
                 return
             }
-            ComObjCreate("SAPI.SpVoice").Speak("Seed Found")
+
+            if (!output["seed_type"]) Speak("Seed Found")
         
             next_seed_type := output["seed_type"]
         }
@@ -85,15 +91,13 @@ FindSeed(resetFromWorld){
         Sleep, 100
         settings["fastWorldCreation"] == true ? FSGFastCreateWorld() : FSGCreateWorld()
         
-        if (seed_type){
-            ComObjCreate("SAPI.SpVoice").Speak(seed_type)
-        }
+        if (next_seed_type) Speak(next_seed_type)
         
         FileAppend, %token%, fsg_seed_token.txt
         output := GenerateSeed()
         next_seed := output["seed"]
         token := output["token"]
-        next_seed_type = output["seed_type"]
+        next_seed_type := output["seed_type"]
     } else {
         MsgBox % "Minecraft is not open, open Minecraft and run agian."
     }

@@ -26,14 +26,14 @@ def run_seed(generator: str):
             token = listedCmd[listedCmd.index("Token:") + 1]
             seedCount = listedCmd[listedCmd.index("Seed:") + 3]
     if(seed != "" and token != ""):
-        print(f"Generator: {generator}")
+        print(f"Generator: {generator} ")
         print(f"Seed: {seed} ")
-        print(f"Verification Token: {token}")
-        if seedCount != "":
-            print(f"Filtered: {seedCount}")
+        print(f"Verification Token: {token} ")
         if seed_type != "":
-            print(f"Type: {seed_type}")
-        print(f"Duration: {time.strftime('%H:%M:%S', time.gmtime(time.time() - start))}")
+            print(f"Type: {seed_type} ")
+        if seedCount != "":
+            print(f"Filtered: {seedCount} ")
+        print(f"Duration: {time.strftime('%H:%M:%S', time.gmtime(time.time() - start))} ")
 
 
 def start_run():
