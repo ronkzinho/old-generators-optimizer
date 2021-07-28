@@ -25,8 +25,8 @@ def update(check: bool, force: bool):
                 with open("optimizer.zip", "wb") as code:
                     code.write(r.content)
                     newProperties = unzip("optimizer.zip", settings_json)
-                    settings_raw.seek(0)
-                    settings_raw.write(json.dumps(newProperties, indent=4))
+                    with open("settings.json", "w") as w:
+                        w.write(json.dumps(newProperties, indent=4))
             if check:
                 return print("False")
     except Exception:
