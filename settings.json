@@ -1,8 +1,8 @@
 {
-    "generator": "filteredseed",
+    "generator": "",
     "thread_count": 4,
-    "autoUpdate": false,
-    "worldListWait": 3000,
+    "autoUpdate": true,
+    "titleScreenDelay": 1000,
     "savesFolder": "%appdata%/.minecraft/saves",
     "fastWorldCreation": false
 }

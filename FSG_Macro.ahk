@@ -13,14 +13,15 @@ global next_seed_type = ""
 global token = ""
 global timestamp = 0
 global autoUpdate := settings["autoUpdate"]
-global worldListWait := settings["worldListWait"]
+global titleScreenDelay := settings["titleScreenDelay"]
+global fastWorldCreation := settings["fastWorldCreation"]
 
 IfNotExist, fsg_tokens
     FileCreateDir, fsg_tokens
 
 #NoEnv
 EnvGet, appdata, appdata 
-global SavesDirectory := StrReplace(settings["savesFolder"], "%appdata%", appdata)
+global SavesDirectory := StrReplace(settings["savesFolder"], "%appdata%", appdata) (SubStr(settings["savesFolder"],0,1) == "/" ? "" : "/")
 IfNotExist, %SavesDirectory%_oldWorlds
     FileCreateDir, %SavesDirectory%_oldWorlds
 
@@ -33,6 +34,12 @@ IfNotExist, %SavesDirectory%_oldWorlds
 
 Speak(txt){
      ComObjCreate("SAPI.SpVoice").Speak(txt)
+}
+
+KillProcesses(){
+    RunHide("taskkill /F /IM wslhost.exe")
+    RunHide("taskkill /F /IM wsl.exe")
+    RunHide("taskkill /F /IM seed")
 }
 
 RunHide(Command) {
@@ -52,6 +59,31 @@ RunHide(Command) {
     Return Result
 }
 
+HasGameSaved() {
+    rawLogFile := StrReplace(SavesDirectory, "saves", "logs\latest.log")
+    StringTrimRight, logFile, rawLogFile, 1
+    numLines := 0
+    Loop, Read, %logFile%
+    {
+        numLines += 1
+    }
+    saved := False
+    while (!saved)
+    {
+        Loop, Read, %logFile%
+        {
+            if ((numLines - A_Index) < 2)
+            {
+                if (InStr(A_LoopReadLine, "Stopping worker threads")) {
+                    saved := True
+                    break
+                }
+            }
+        }
+    }
+    return saved
+}
+
 GenerateSeed() {
     fsg_seed_token := RunHide("wsl.exe python3 ./findSeed.py")
     timestamp := A_NowUTC
@@ -59,7 +91,9 @@ GenerateSeed() {
     fsg_seed_array := StrSplit(fsg_seed_token_array[2], A_Space)
     fsg_type_array := StrSplit(fsg_seed_token_array[4], A_Space)
     fsg_seed := Trim(fsg_seed_array[2])
-    fsg_type := Trim(fsg_type_array[2])
+    fsg_type := (InStr(fsg_seed_token, "Type:", false) ? Trim(fsg_type_array[2]) : "")
+
+    KillProcesses()
 
     return {seed: fsg_seed, token: fsg_seed_token, seed_type: fsg_type}
 }
@@ -78,9 +112,10 @@ FindSeed(resetFromWorld){
                 return
             }
 
-            if (!output["seed_type"]) Speak("Seed Found")
-        
             next_seed_type := output["seed_type"]
+
+            Speak("Seed Found") 
+
         }
         if FileExist("fsg_seed_token.txt"){
             FileMoveDir, fsg_seed_token.txt, fsg_tokens\fsg_seed_token_%A_NowUTC%.txt, R
@@ -89,10 +124,17 @@ FindSeed(resetFromWorld){
 
         WinActivate, Minecraft
         Sleep, 100
-        settings["fastWorldCreation"] == true ? FSGFastCreateWorld() : FSGCreateWorld()
+
+        if (fastWorldCreation){
+            FSGFastCreateWorld()
+        }
+        else {
+            FSGCreateWorld()
+        }
         
-        if (next_seed_type) Speak(next_seed_type)
-        
+        if (next_seed_type){
+            Speak(next_seed_type)
+        }
         FileAppend, %token%, fsg_seed_token.txt
         output := GenerateSeed()
         next_seed := output["seed"]
@@ -104,27 +146,14 @@ FindSeed(resetFromWorld){
 }
 
 GetSeed(){
-    WinGetPos, X, Y, W, H, Minecraft
     WinGetActiveTitle, Title
-    IfNotInString Title, player
+    IfNotInString Title, -
         FindSeed(False)()
     else {
         ExitWorld()
-        sleep, 100
-        Loop {
-            IfWinActive, Minecraft 
-            {
-                PixelSearch, Px, Py, 0, 0, W, H, 0x00FCFC, 1, Fast
-                if (!ErrorLevel) {
-                    Sleep, %worldListWait%
-                    IfWinActive, Minecraft 
-                    {
-                        FindSeed(True)()
-                        break
-                    }
-                }
-            }
-        } 
+        HasGameSaved()
+        sleep, %titleScreenDelay%
+        FindSeed(True)()
     } 
 }
 
@@ -219,8 +248,13 @@ if (autoUpdate != true and autoUpdate != false){
     ExitApp
 }
 
-if (!(worldListWait > 0)){
-    MsgBox % "The configuration worldListWait must be a postive number."
+if (fastWorldCreation != true and fastWorldCreation != false){
+    MsgBox % "The configuration fastWorldCreation must be either true or false."
+    ExitApp
+}
+
+if (!(titleScreenDelay > 0)){
+    MsgBox % "The configuration titleScreenDelay must be a postive number."
     ExitApp
 }
 

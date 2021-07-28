@@ -33,7 +33,7 @@ def run_seed(generator: str):
             print(f"Type: {seed_type} ")
         if seedCount != "":
             print(f"Filtered: {seedCount} ")
-        print(f"Duration: {time.strftime('%H:%M:%S', time.gmtime(time.time() - start))} ")
+        print(f"Duration: {time.strftime('%H:%M:%S', time.gmtime(time.time() - start))} \n")
 
 
 def start_run():

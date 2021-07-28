@@ -9,15 +9,21 @@ FileRead jsonString, settings.json
 
 settings := JSON.Load(jsonString)
 
-global autoUpdate = settings["autoUpdate"] || true
-global worldListWait = settings["worldListWait"] || 3000
+global autoUpdate = settings["autoUpdate"]
+global worldListWait = settings["worldListWait"]
 
 #NoEnv
 EnvGet, appdata, appdata 
-global SavesDirectory = StrReplace(settings["savesFolder"], "%appdata%", appdata) || appdata "\.minecraft\saves\"
+global SavesDirectory = StrReplace(settings["savesFolder"], "%appdata%", appdata) (SubStr(settings["savesFolder"],0,1) == "/" ? "" : "/")
 IfNotExist, %SavesDirectory%_oldWorlds
     FileCreateDir, %SavesDirectory%_oldWorlds
 
+
+KillProcesses(){
+    RunHide("taskkill /F /IM wslhost.exe")
+    RunHide("taskkill /F /IM wsl.exe")
+    RunHide("taskkill /F /IM seed")
+}
 
 
 FindSeed(){
@@ -41,6 +47,8 @@ FindSeed(){
         fsg_type_array := StrSplit(fsg_seed_token_array[4], A_Space)
         fsg_seed := Trim(fsg_seed_array[2])
         fsg_type := Trim(fsg_type_array[2])
+
+        KillProcesses()
 
         if (!fsg_seed){
             MsgBox % fsg_seed_token
@@ -142,8 +150,17 @@ ExitWorld()
     SetKeyDelay, 50
 }
 
-if (!FileExist(SavesDirectory)){
-    MsgBox, "Your saves folder is invalid!"
+if (!settings["generator"]){
+    MsgBox % "Invalid generator."
+}
+
+if (autoUpdate != true and autoUpdate != false){
+    MsgBox % "The configuration autoUpdate must be either true or false."
+    ExitApp
+}
+
+if (!(worldListWait > 0)){
+    MsgBox % "The configuration worldListWait must be a postive number."
     ExitApp
 }
 
