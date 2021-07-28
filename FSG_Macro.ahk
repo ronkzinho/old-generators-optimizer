@@ -239,26 +239,7 @@ if (!FileExist(SavesDirectory)){
     ExitApp
 }
 
-if (!settings["generator"]){
-    MsgBox % "Invalid generator."
-}
-
-if (autoUpdate != true and autoUpdate != false){
-    MsgBox % "The configuration autoUpdate must be either true or false."
-    ExitApp
-}
-
-if (fastWorldCreation != true and fastWorldCreation != false){
-    MsgBox % "The configuration fastWorldCreation must be either true or false."
-    ExitApp
-}
-
-if (!(titleScreenDelay > 0)){
-    MsgBox % "The configuration titleScreenDelay must be a postive number."
-    ExitApp
-}
-
-if (autoUpdate == true){
+if (autoUpdate == true || autoUpdate != false){
     update := RunHide("wsl.exe python3 ./updater.py check")
     
     IfInString, update, True
@@ -284,6 +265,26 @@ if (FileExist("requirements.txt")){
     }
     FileDelete % "./requirements.txt"
 }
+
+if (autoUpdate != true and autoUpdate != false){
+    MsgBox % "The configuration autoUpdate must be either true or false."
+    ExitApp
+}
+
+if (!settings["generator"]){
+    MsgBox % "Invalid generator."
+}
+
+if (fastWorldCreation != true and fastWorldCreation != false){
+    MsgBox % "The configuration fastWorldCreation must be either true or false."
+    ExitApp
+}
+
+if (!(titleScreenDelay > 0)){
+    MsgBox % "The configuration titleScreenDelay must be a postive number."
+    ExitApp
+}
+
 
 #IfWinActive, Minecraft
 {
