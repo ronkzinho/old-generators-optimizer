@@ -1,3 +1,5 @@
+#Include JSON.ahk
+
 #SingleInstance, Force
 SetWorkingDir, %A_ScriptDir%
 SetKeyDelay, 50
@@ -9,8 +11,9 @@ FileRead jsonString, settings.json
 
 settings := JSON.Load(jsonString)
 
-global autoUpdate = settings["autoUpdate"]
-global worldListWait = settings["worldListWait"]
+global autoUpdate := settings["autoUpdate"]
+global titleScreenDelay := settings["titleScreenDelay"]
+global fastWorldCreation := settings["fastWorldCreation"]
 
 #NoEnv
 EnvGet, appdata, appdata 
@@ -23,6 +26,23 @@ KillProcesses(){
     RunHide("taskkill /F /IM wslhost.exe")
     RunHide("taskkill /F /IM wsl.exe")
     RunHide("taskkill /F /IM seed")
+}
+
+RunHide(Command) {
+    dhw := A_DetectHiddenWindows
+    DetectHiddenWindows, On
+    Run, %ComSpec%,, Hide, cPid
+    WinWait, ahk_pid %cPid%
+    DetectHiddenWindows, %dhw%
+    DllCall("AttachConsole", "uint", cPid)
+
+    Shell := ComObjCreate("WScript.Shell")
+    Exec := Shell.Exec(Command)
+    Result := Exec.StdOut.ReadAll()
+
+    DllCall("FreeConsole")
+    Process, Close, %cPid%
+    Return Result
 }
 
 
@@ -62,8 +82,15 @@ FindSeed(){
         if (fsg_type) { 
             ComObjCreate("SAPI.SpVoice").Speak(fsg_type)
         } else ComObjCreate("SAPI.SpVoice").Speak("Seed Found")
+
+        if (fastWorldCreation){
+            FSGFastCreateWorld()
+        }
+        else {
+            FSGCreateWorld()
+        }
         
-        settings["fastWorldCreation"] == true ? FSGFastCreateWorld() : FSGCreateWorld()
+
     } else {
         MsgBox % "Minecraft is not open, open Minecraft and run again."
     }
@@ -77,6 +104,14 @@ GetSeed(){
 }
 
 FSGCreateWorld(){
+    Loop, Files, %SavesDirectory%*, D
+    {
+        _Check :=SubStr(A_LoopFileName,1,1)
+        If (_Check!="_")
+        {
+            FileMoveDir, %SavesDirectory%%A_LoopFileName%, %SavesDirectory%_oldWorlds\%A_LoopFileName%%A_NowUTC%, R
+        }
+    }
     Send, {Esc}{Esc}{Esc}
     Send, `t
     Send, {enter}
@@ -111,36 +146,31 @@ FSGCreateWorld(){
 }
 
 FSGFastCreateWorld(){
+    Loop, Files, %SavesDirectory%*, D
+    {
+        _Check :=SubStr(A_LoopFileName,1,1)
+        If (_Check!="_")
+        {
+            FileMoveDir, %SavesDirectory%%A_LoopFileName%, %SavesDirectory%_oldWorlds\%A_LoopFileName%%A_NowUTC%, R
+        }
+    }
+    delay := 45 ; Fine tune for your PC/comfort level (Each screen needs to be visible for at least a frame)
     SetKeyDelay, 0
     send {Esc}{Esc}{Esc}
     send {Tab}{Enter}
-    SetKeyDelay, 45 ; Fine tune for your PC/comfort level
+    SetKeyDelay, delay 
     send {Tab}
     SetKeyDelay, 0
     send {Tab}{Tab}{Enter}
     send ^a
     send ^v
     send {Tab}{Tab}{Enter}{Enter}{Enter}{Tab}{Tab}{Tab}
-    SetKeyDelay, 45 ; Fine tune for your PC/comfort level
+    SetKeyDelay, delay
     send {Tab}{Enter}
     SetKeyDelay, 0
     send {Tab}{Tab}{Tab}^v{Shift}+{Tab}
-    SetKeyDelay, 45 ; Fine tune for your PC/comfort level
+    SetKeyDelay, delay
     send {Shift}+{Tab}{Enter}
-}
-
-ExitWorld()
-{
-    send {Esc}+{Tab}{Enter}
-    sleep, 100
-    Loop, Files, %SavesDirectory%*, D
-    {
-        _Check := SubStr(A_LoopFileName,1,1)
-        If (_Check != "_")
-        {
-            FileMoveDir, %SavesDirectory%%A_LoopFileName%, %SavesDirectory%_oldWorlds\%A_LoopFileName%_%A_NowUTC%, R
-        }
-    }
 }
 
 ExitWorld()
@@ -150,21 +180,12 @@ ExitWorld()
     SetKeyDelay, 50
 }
 
-if (!settings["generator"]){
-    MsgBox % "Invalid generator."
-}
-
-if (autoUpdate != true and autoUpdate != false){
-    MsgBox % "The configuration autoUpdate must be either true or false."
+if (!FileExist(SavesDirectory)){
+    MsgBox % "Your saves folder is invalid!"
     ExitApp
 }
 
-if (!(worldListWait > 0)){
-    MsgBox % "The configuration worldListWait must be a postive number."
-    ExitApp
-}
-
-if (autoUpdate == true){
+if (autoUpdate == true || autoUpdate != false){
     update := RunHide("wsl.exe python3 ./updater.py check")
     
     IfInString, update, True
@@ -174,6 +195,7 @@ if (autoUpdate == true){
         {
             RunHide("wsl.exe python3 ./updater.py")
             MsgBox, Done.
+            Reload
         }
     }
 }
@@ -182,13 +204,31 @@ if (FileExist("requirements.txt")){
     if (autoUpdate == true){
         RunHide("wsl.exe python3 ./updater.py force")
     }
-
     result := RunHide("wsl.exe pip install -r requirements.txt")
     if (result == ""){
         MsgBox, You have to install pip using: "sudo apt-get install python3-pip"
         ExitApp
     }
     FileDelete % "./requirements.txt"
+}
+
+if (autoUpdate != true and autoUpdate != false){
+    MsgBox % "The configuration autoUpdate must be either true or false."
+    ExitApp
+}
+
+if (!settings["generator"]){
+    MsgBox % "Invalid generator."
+}
+
+if (fastWorldCreation != true and fastWorldCreation != false){
+    MsgBox % "The configuration fastWorldCreation must be either true or false."
+    ExitApp
+}
+
+if (!(titleScreenDelay > 0)){
+    MsgBox % "The configuration titleScreenDelay must be a postive number."
+    ExitApp
 }
 
 #IfWinActive, Minecraft

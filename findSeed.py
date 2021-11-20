@@ -50,6 +50,8 @@ def start_run():
                     shutil.rmtree("./generator/", ignore_errors=True)
                     if not get_gen(): return print("Invalid generator or something went wrong.")
         num_processes = read_json["thread_count"]
+    if(num_processes == 1):
+        return run_seed(generator)
     processes = []
     for i in range(num_processes):
         processes.append(Process(target=run_seed, args=(generator,)))

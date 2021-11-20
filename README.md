@@ -15,3 +15,6 @@ Change the settings.json file with the generator you want(from the supported gen
 And also don't forget to change the minecraft folder(on the hotkey script) with where your minecraft saves are.
 
 The supported generators in the [website](https://oldgenoptimizer.tk/)
+
+FSG_Macro_slow - only loads one seed at the time, useful for slowers pcs
+FSG_Macro - loads two seeds at the time
