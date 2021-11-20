@@ -17,4 +17,5 @@ And also don't forget to change the minecraft folder(on the hotkey script) with 
 The supported generators in the [website](https://oldgenoptimizer.tk/)
 
 FSG_Macro_slow - only loads one seed at the time, useful for slowers pcs
+
 FSG_Macro - loads two seeds at the time
