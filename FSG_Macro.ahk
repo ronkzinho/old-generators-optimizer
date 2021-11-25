@@ -85,6 +85,10 @@ HasGameSaved() {
 }
 
 GenerateSeed() {
+    if (CheckEverything(false) != true){
+        KillProcesses()
+        ExitApp
+    }
     fsg_seed_token := RunHide("wsl.exe python3 ./findSeed.py")
     timestamp := A_NowUTC
     fsg_seed_token_array := StrSplit(fsg_seed_token, ["Seed:", "Verification Token:", "Type:"]) 
@@ -285,6 +289,28 @@ if (!(titleScreenDelay > 0)){
     ExitApp
 }
 
+CheckEverything(settings["warnOnUnverifiable"])
+
+CheckEverything(checkUnverifiable) {
+    checkGen := RunHide("wsl.exe python3 ./gen.py")
+    If InStr(checkGen, "Missing") || If InStr(checkGen, "csprng.c sha256sum") 
+    {
+        MsgBox, 4, OldGenOptimizer, %checkGen%Download generator again?
+        IfMsgBox, Yes
+        {
+            RunHide("wsl.exe python3 ./gen.py download")
+            MsgBox, Done.
+            Reload
+        }
+    }
+    if (checkUnverifiable == true){
+        IfInString, checkGen, Runs with this generator won't be able to get verified.
+        {
+            MsgBox % checkGen
+        }
+    }
+    return true
+}
 
 #IfWinActive, Minecraft
 {

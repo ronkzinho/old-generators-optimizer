@@ -1,7 +1,7 @@
 import os
 import json
 from multiprocessing import Process
-from downloadGen import get_gen
+from gen import get_gen
 import subprocess
 import signal
 import shutil
@@ -48,7 +48,8 @@ def start_run():
                 content = file.read()
                 if content != read_json["generator"]:
                     shutil.rmtree("./generator/", ignore_errors=True)
-                    if not get_gen(): return print("Invalid generator or something went wrong.")
+                    if not get_gen(True, True): return print("Invalid generator or something went wrong.")
+                    else: get_gen()
         num_processes = read_json["thread_count"]
     if(num_processes == 1):
         return run_seed(generator)

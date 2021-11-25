@@ -1,8 +1,9 @@
 {
-    "generator": "",
-    "thread_count": 4,
-    "autoUpdate": true,
-    "titleScreenDelay": 1000,
-    "savesFolder": "%appdata%/.minecraft/saves",
-    "fastWorldCreation": false
+  "generator": "",
+  "thread_count": 4,
+  "autoUpdate": true,
+  "titleScreenDelay": 1000,
+  "savesFolder": "%appdata%/.minecraft/saves",
+  "fastWorldCreation": false,
+  "warnOnUnverifiable": true
 }

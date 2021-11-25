@@ -54,6 +54,11 @@ FindSeed(){
 
         ComObjCreate("SAPI.SpVoice").Speak("Searching")
 
+        if (CheckEverything(false) != true){
+            KillProcesses()
+            ExitApp
+        }
+
         try{
             RunWait, wsl.exe python3 ./findSeed.py > fsg_seed_token.txt,, hide
         } Catch e {
@@ -229,6 +234,29 @@ if (fastWorldCreation != true and fastWorldCreation != false){
 if (!(titleScreenDelay > 0)){
     MsgBox % "The configuration titleScreenDelay must be a postive number."
     ExitApp
+}
+
+CheckEverything(settings["warnOnUnverifiable"])
+
+CheckEverything(checkUnverifiable) {
+    checkGen := RunHide("wsl.exe python3 ./gen.py")
+    If InStr(checkGen, "Missing") || If InStr(checkGen, "csprng.c sha256sum") 
+    {
+        MsgBox, 4, OldGenOptimizer, %checkGen%Download generator again?
+        IfMsgBox, Yes
+        {
+            RunHide("wsl.exe python3 ./gen.py download")
+            MsgBox, Done.
+            Reload
+        }
+    }
+    if (checkUnverifiable == true){
+        IfInString, checkGen, Runs with this generator won't be able to get verified.
+        {
+            MsgBox % checkGen
+        }
+    }
+    return true
 }
 
 #IfWinActive, Minecraft
