@@ -6,7 +6,7 @@ import sys
 from packaging import version
 
 
-currentVersion = "v1.3.8"
+currentVersion = "v1.3.81"
 
 def update(check: bool, force: bool):
     try:
