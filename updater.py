@@ -6,7 +6,7 @@ import sys
 from packaging import version
 
 
-currentVersion = "v1.3.8-beta"
+currentVersion = "v1.3.8"
 
 def update(check: bool, force: bool):
     try:
@@ -18,10 +18,18 @@ def update(check: bool, force: bool):
                 if not os.path.isfile(essentialFile):
                     missingFiles = True
             req = requests.get("https://api.github.com/repos/ronkzinho/oldgenoptimizer/releases")
-            newestVersion = req.json()
-            if ((newestVersion[0]["prerelease"] and version.parse(filter(lambda version: not version["prerelease"], newestVersion)[0]["tag_name"]) > version.parse(currentVersion)) or (version.parse(newestVersion[0]["tag_name"]) > version.parse(currentVersion) and newestVersion[0]["prerelease"] and settings_json["tests"] == True) or missingFiles == True or force == True):
+            releases = req.json()
+            latest = None
+
+            for x in releases:
+                if not latest or version.parse(x["tag_name"]) > version.parse(latest["tag_name"]):
+                    if(x["prerelease"] and not settings_json["activateBeta"]):
+                        break
+                    latest = x
+
+            if version.parse(latest) > version.parse(currentVersion) or missingFiles == True or force == True:
                 if check: return print("True")
-                r = requests.get("https://github.com/ronkzinho/oldgenoptimizer/releases/latest/download/optimizer.zip")
+                r = requests.get(releases[0]["browser_download_url"])
                 with open("optimizer.zip", "wb") as code:
                     code.write(r.content)
                     newProperties = unzip("optimizer.zip", settings_json)
