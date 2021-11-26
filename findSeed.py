@@ -19,7 +19,7 @@ def run_seed(generator: str):
         cmd = os.popen("cd generator && ./seed").read().strip()
         listedCmd = re.sub("[.|,|@|\\n]", " ", cmd).split(" ")
         if "Seed:" in listedCmd:
-            if all(map(lambda x: ")" in x, listedCmd)):
+            if not(any((map(lambda x: ")" in x, listedCmd)))):
                 seed_type = listedCmd[listedCmd.index("Seed") - 1]
 
             seed = listedCmd[listedCmd.index("Seed:") + 1]
