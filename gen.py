@@ -8,7 +8,7 @@ from zipfile import ZipFile
 baseGeneratorPath = "./generator"
 mandatoryGeneratorFiles = ["/seed", "/csprng.c", "/libs/"]
 
-def get_gen(download: bool, forceDownload):
+def get_gen(download: bool = False, forceDownload = False):
     with open('settings.json') as filter_json:
         try:
             read_json = json.load(filter_json)
